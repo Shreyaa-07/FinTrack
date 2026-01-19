@@ -9,7 +9,8 @@ exports.addExpense = async (req, res) => {
         amount,
         category,
         description,
-        date
+        date,
+        user: req.user.id
     })
 
     try {
@@ -31,7 +32,7 @@ exports.addExpense = async (req, res) => {
 
 exports.getExpense = async (req, res) =>{
     try {
-        const incomes = await ExpenseSchema.find().sort({createdAt: -1})
+        const incomes = await ExpenseSchema.find({ user: req.user.id }).sort({createdAt: -1})
         res.status(200).json(incomes)
     } catch (error) {
         res.status(500).json({message: 'Server Error'})
@@ -40,8 +41,11 @@ exports.getExpense = async (req, res) =>{
 
 exports.deleteExpense = async (req, res) =>{
     const {id} = req.params;
-    ExpenseSchema.findByIdAndDelete(id)
+    ExpenseSchema.findOneAndDelete({ _id: id, user: req.user.id })
         .then((income) =>{
+            if (!income) {
+                return res.status(404).json({ message: 'Expense not found or not authorized' })
+            }
             res.status(200).json({message: 'Expense Deleted'})
         })
         .catch((err) =>{
