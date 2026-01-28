@@ -5,7 +5,6 @@ const {readdirSync} = require('fs')
 const app = express()
 
 require('dotenv').config()
-console.log(process.env.MONGO_URL);
 
 const PORT = process.env.PORT
 
